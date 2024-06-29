@@ -8,14 +8,13 @@ using System.Xml.Linq;
 
 //Bow Valley College, Instructor: Pedro Ferreira Student: Janine Neville, Student ID: 164657 
 
-namespace Assignment_01_solution
+namespace Assignment_01
 {
     class Book  /*This class is complete.*/
     {
         public string BookName { get; set; } //Book name alone is not unique
         public int Serial { get; set; } //Together, book name and serial is unique
         public bool Status { get; set; } = false; //false means the book is available for renting
-
         public Book(string name, int serial)
         {
             BookName = name;
@@ -38,7 +37,6 @@ namespace Assignment_01_solution
             }
             return false; //otherwise, the book is not available.  
         }
-
         public bool Return()
         {
             if (Status == true)
@@ -80,13 +78,13 @@ namespace Assignment_01_solution
             }
             //Rent the book if available and display confirmation message.
             //A book can only be rented if it's rental status is false
-            else if (Status == false)
+            else if (book.Status == false)
             {
                 readersBookList.Add(book);
                 Console.WriteLine("You have successfully rented the book!");
             }
             //If the book is already rented display message indicating it is rented.
-            else (Status == true);
+            else 
             {
                 Console.WriteLine("Sorry! The book is already rented.");
             }
@@ -98,7 +96,7 @@ namespace Assignment_01_solution
             //and remove the book for the readers book list.
             if (readersBookList.Contains(book) == true)
             {
-                Status == false;
+                book.Status = false; // Change the book's status
                 readersBookList.Remove(book);
             }
         }
@@ -107,7 +105,6 @@ namespace Assignment_01_solution
             //This method is complete.
             //Shows the reader's name and the list of books rented by the reader.
             //If no books are rented by the reader yet, displays "No books rented yet!".
-
             Console.WriteLine("Reader {0} rented the following books:", ReaderName);
             if (readersBookList.Count == 0)
             {
@@ -145,174 +142,161 @@ namespace Assignment_01_solution
             /*For a registered/existing reader, in order to remove a reader,
             first (1) return all books (if any) rented by that reader 
             and then (2) remove the reader from BookStoreReadersList.*/
-            if (BookStoreReadersList.Contains(reader) == false)
+            Reader readerToRemove = BookStoreReadersList.FirstOrDefault(r => r.ReaderName == name);
+            if (readerToRemove == null)
             {
                 Console.WriteLine("The reader is not registered to the bookstore");
+                return;
             }
-            else (BookStoreReadersList.Contains(reader) == true);
+            foreach (Book book in readerToRemove.readersBookList)
             {
-                readersBookList.Remove(book);
-                BookStoreReadersList.Remove(reader);
+                book.Return(); // Return the book to the store
             }
+            BookStoreReadersList.Remove(readerToRemove);
         }
-
         public void AddABook(string name, int serial)
         {
             //add a book object to the BookStoreBooksList with BookName and Serial.
-            BookName = name;
-            Serial = serial;
+            Book book = new Book(name, serial);
+            BookStoreBooksList.Add(book);
         }
         public void RemoveABook(string name, int serial)
         {
             //find the book with correct name and serial from BookStoreBooksList.
             //In order to remove a book from book store, only allow if the book's status==false
             //meaning the book is 'available' to the bookstore.   
-            if (BookStoreBooksList.Contains(book) == false)
+            Book bookToRemove = BookStoreBooksList.FirstOrDefault(b => b.BookName == name && b.Serial == serial);
+            if (bookToRemove == null || bookToRemove.Status == true)
             {
-                BookStoreBooksList.Remove(book);
-            }
-            else
-            {
-                //Otherwise, issue an error message because the book is already rented by some readers!
                 Console.WriteLine("The book is already rented by another reader.");
+                return;
             }
+            BookStoreBooksList.Remove(bookToRemove);
         }
-        public void RentABook(string readerName, string bookName)
+        public void RentABook(string readerName, string bookName, int serial)
         {
             //Find the reader from the BookStoreReadersList
-            if (BookStoreReadersList.Contains(reader) == false)
+            Reader reader = BookStoreReadersList.FirstOrDefault(r => r.ReaderName == readerName);
+            if (reader == null)
             {
                 //If the reader is not registered to bookstore, display error message.
                 Console.WriteLine("You are not a registered reader of this bookstore.");
+                return;
             }
-            else if (BookStoreReadersList.Contains(reader) == true)
-            {
-                /*Otherwise
-                A book can be rented, if it is available to the store
-                and not already rented to somone else!*/
-                Status == false;
-                readersBookList.Add(book);
-            }
-            else
+            Book book = BookStoreBooksList.FirstOrDefault(b => b.BookName == bookName && b.Serial == serial);
+            if (book == null || book.Status == true)
             {
                 //Display error message if book is already rented by another reader.
                 Console.WriteLine("Sorry the book is not available for renting, as it is currently in use by another reader.");
+                return;
             }
-            public void ReturnABook(string readerName, string bookName, int serial)
+            // If the book is available and the reader can rent it:
+            reader.RentABook(book);
+        }
+        public void ReturnABook(string readerName, string bookName, int serial)
+        {
+            //A book can be returned by a reader, if he/she actually rented the book.
+            //Find the reader from BookStoreReadersList
+            //Find the book with correct serial from from reader's personal book list
+            //Return the book by calling 'ReturnABook' method of the Reader class.
+            Reader reader = BookStoreReadersList.FirstOrDefault(r => r.ReaderName == readerName);
+            if (reader == null)
             {
-                //A book can be returned by a reader, if he/she actually rented the book.
-                //Find the reader from BookStoreReadersList
-                //Find the book with correct serial from from reader's personal book list
-                //Return the book by calling 'ReturnABook' method of the Reader class.
-                if ((BookStoreReadersList.Contains(reader) == true) && readerBooksList.Contains(book) == true) ;
-                {
-                    readersBookList.Remove(book);
-                }
+                Console.WriteLine("The reader is not registered to the bookstore.");
+                return;
             }
-            public void ShowBookInformation()
+            Book book = BookStoreBooksList.FirstOrDefault(b => b.BookName == bookName && b.Serial == serial);
+            if (book == null)
             {
-                //Show all books that are available to the bookstore (if any).
-                if (BookStoreBooksList.Count == 0)
-                {
-                    Console.WriteLine("The bookstore currently has no books available.");
-                    return;
-                }
-                else if (BookStoreBooksList.Count >= 1)
-                {
-                    Console.WriteLine("This is a list of all the books that are available to the bookstore:");
-                    return;
-                }
-                foreach (var book in BookStoreBooksList)
-                {
-                    book.BookInfo();
-                }
+                Console.WriteLine("The book is not in the bookstore's inventory.");
+                return;
             }
-            public void ShowReaderInformation()
+            if (reader.readersBookList.Contains(book))
             {
-                //Show all readers that are added to the bookstore (if any).
-                if (BookStoreReadersList.Count == 0)
-                {
-                    Console.WriteLine("The bookstore currently has no readers.");
-                    return;
-                }
-                else if (BookStoreReadersList.Count >= 1)
-                {
-                    Console.WriteLine("The bookstore has the following readers:");
-                    return;
-                }
-                foreach (var reader in BookStoreReadersList) ;
-                {
-                    reader.ReaderInfo();
-                }
+                reader.ReturnABook(book);
+            }
+            else
+            {
+                Console.WriteLine("The reader did not rent this book.");
             }
         }
-        internal class Program
+        public void ShowBookInformation()
         {
-            static void Main(string[] args)
+            //Show all books that are available to the bookstore (if any).
+            if (BookStoreBooksList.Count == 0)
             {
-                /*You should not change the code in the Main Method. */
-
-                BookStore bs = new BookStore();
-                bs.AddAReader("Mahbub Murshed");
-                bs.AddAReader("David Alwright");
-                bs.AddAReader("Susan Harper");
-                bs.AddABook("Object Oriented Programming", 1);
-                bs.AddABook("Object Oriented Programming", 2);
-                bs.AddABook("Object Oriented Programming", 3);
-                bs.AddABook("Programming Fundamentals", 1);
-                bs.AddABook("Programming Fundamentals", 2);
-                bs.AddABook("Let us C#", 1);
-                bs.AddABook("Programming is Fun", 1);
-                bs.AddABook("Life is Beautiful", 1);
-                bs.AddABook("Let's Talk About the Logic", 1);
-                bs.AddABook("How to ace a job interview", 1);
-
-                bs.ShowBookInformation();
-                bs.ShowReaderInformation();
-
-                bs.RentABook("Salma Hayek", "Object Oriented Programming");
-
-                bs.RentABook("Mahbub Murshed", "Object Oriented Programming");
-                bs.RentABook("Mahbub Murshed", "How to ace a job interview");
-                bs.RentABook("Mahbub Murshed", "Life is Beautiful");
-
-                Console.WriteLine();
-
-                bs.RentABook("David Alwright", "Object Oriented Programming");
-                bs.RentABook("David Alwright", "Programming Fundamentals");
-                Console.WriteLine();
-
-                bs.RentABook("Susan Harper", "Let's Talk About the Logic");
-                bs.RentABook("Susan Harper", "How to ace a job interview");
-                Console.WriteLine();
-
-                bs.ShowBookInformation();
-                bs.ShowReaderInformation();
-
-
-                bs.ReturnABook("Mahbub Murshed", "Object Oriented Programming", 1);
-                bs.RentABook("Mahbub Murshed", "Life is Beautiful");
-                Console.WriteLine();
-
-                bs.ReturnABook("Mahbub Murshed", "Programming Fundamentals", 1);
-
-                bs.RemoveABook("Let us C#", 1);
-                bs.RemoveABook("Let's Talk About the Logic", 1);
-
-                bs.ShowReaderInformation();
-                bs.RemoveAReader("Mahbub Murshed");
-
-
-                bs.ShowBookInformation();
-                bs.ShowReaderInformation();
-                Console.Read();
-
+                Console.WriteLine("The bookstore currently has no books available.");
+                return;
             }
-
+            Console.WriteLine("This is a list of all the books that are available to the bookstore:");
+            foreach (var book in BookStoreBooksList)
+            {
+                book.BookInfo();
+            }
+        }
+        public void ShowReaderInformation()
+        {
+            //Show all readers that are added to the bookstore (if any).
+            if (BookStoreReadersList.Count == 0)
+            {
+                Console.WriteLine("The bookstore currently has no readers.");
+                return;
+            }
+            Console.WriteLine("The bookstore has the following readers:");
+            foreach (var reader in BookStoreReadersList)
+            {
+                reader.ReaderInfo();
+            }
+        }
+    }
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            /*You should not change the code in the Main Method. */
+            BookStore bs = new BookStore();
+            bs.AddAReader("Mahbub Murshed");
+            bs.AddAReader("David Alwright");
+            bs.AddAReader("Susan Harper");
+            bs.AddABook("Object Oriented Programming", 1);
+            bs.AddABook("Object Oriented Programming", 2);
+            bs.AddABook("Object Oriented Programming", 3);
+            bs.AddABook("Programming Fundamentals", 1);
+            bs.AddABook("Programming Fundamentals", 2);
+            bs.AddABook("Let us C#", 1);
+            bs.AddABook("Programming is Fun", 1);
+            bs.AddABook("Life is Beautiful", 1);
+            bs.AddABook("Let's Talk About the Logic", 1);
+            bs.AddABook("How to ace a job interview", 1);
+            bs.ShowBookInformation();
+            bs.ShowReaderInformation();
+            bs.RentABook("Salma Hayek", "Object Oriented Programming", 1);
+            bs.RentABook("Mahbub Murshed", "Object Oriented Programming", 1);
+            bs.RentABook("Mahbub Murshed", "How to ace a job interview", 1);
+            bs.RentABook("Mahbub Murshed", "Life is Beautiful", 1);
+            Console.WriteLine();
+            bs.RentABook("David Alwright", "Object Oriented Programming", 1);
+            bs.RentABook("David Alwright", "Programming Fundamentals", 1);
+            Console.WriteLine();
+            bs.RentABook("Susan Harper", "Let's Talk About the Logic", 1);
+            bs.RentABook("Susan Harper", "How to ace a job interview", 1);
+            Console.WriteLine();
+            bs.ShowBookInformation();
+            bs.ShowReaderInformation();
+            bs.ReturnABook("Mahbub Murshed", "Object Oriented Programming", 1);
+            bs.RentABook("Mahbub Murshed", "Life is Beautiful", 1);
+            Console.WriteLine();
+            bs.ReturnABook("Mahbub Murshed", "Programming Fundamentals", 1);
+            bs.RemoveABook("Let us C#", 1);
+            bs.RemoveABook("Let's Talk About the Logic", 1);
+            bs.ShowReaderInformation();
+            bs.RemoveAReader("Mahbub Murshed");
+            bs.ShowBookInformation();
+            bs.ShowReaderInformation();
+            Console.Read();
         }
     }
 }
-
 
 /*
 Once Executed, Your program will have the following output:
