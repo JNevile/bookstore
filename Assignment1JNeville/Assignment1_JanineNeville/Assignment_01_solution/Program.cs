@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
@@ -81,10 +81,10 @@ namespace Assignment_01
             else if (book.Status == false)
             {
                 readersBookList.Add(book);
-                Console.WriteLine("You have successfully rented the book!");
+                return;
             }
             //If the book is already rented display message indicating it is rented.
-            else 
+            else
             {
                 Console.WriteLine("Sorry! The book is already rented.");
             }
@@ -217,7 +217,7 @@ namespace Assignment_01
             }
             else
             {
-                Console.WriteLine("The reader did not rent this book.");
+                return;
             }
         }
         public void ShowBookInformation()
